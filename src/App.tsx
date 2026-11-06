@@ -1,11 +1,11 @@
+import { TodoInput } from "./components/TodoInput";
 import { useTodos } from "./context/TodoContext";
 
 function App() {
-  const { todos, addTodo } = useTodos();
+  const { todos } = useTodos();
   return (
     <div>
-      <button onClick={() => addTodo("test")}>add</button>
-      <button onClick={() => addTodo("   ")}>add blank</button>
+      <TodoInput />
       <pre>{JSON.stringify(todos, null, 2)}</pre>
     </div>
   );
