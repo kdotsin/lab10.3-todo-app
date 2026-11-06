@@ -14,6 +14,7 @@ interface TodoContextValue {
   toggleTodo: (id: string) => void;
   deleteTodo: (id: string) => void;
   editTodo: (id: string, newText: string) => void;
+  clearCompleted: () => void;
 }
 
 const TodoContext = createContext<TodoContextValue | undefined>(undefined);
@@ -37,12 +38,16 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const editTodo = useCallback((id: string, newText: string) => {
-  const trimmed = newText.trim();
-  if (!trimmed) return;
-  setTodos((prev) =>
-    prev.map((todo) => (todo.id === id ? { ...todo, text: trimmed } : todo)),
-  );
-}, []);
+    const trimmed = newText.trim();
+    if (!trimmed) return;
+    setTodos((prev) =>
+      prev.map((todo) => (todo.id === id ? { ...todo, text: trimmed } : todo)),
+    );
+  }, []);
+
+  const clearCompleted = useCallback(() => {
+    setTodos((prev) => prev.filter((todo) => !todo.completed));
+  }, []);
 
   const toggleTodo = useCallback((id: string) => {
     setTodos((prev) =>
@@ -53,8 +58,8 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ todos, addTodo, toggleTodo, deleteTodo, editTodo }),
-    [todos, addTodo, toggleTodo, deleteTodo, editTodo],
+    () => ({ todos, addTodo, toggleTodo, deleteTodo, editTodo, clearCompleted }),
+    [todos, addTodo, toggleTodo, deleteTodo, editTodo, clearCompleted],
   );
 
   return <TodoContext.Provider value={value}>{children}</TodoContext.Provider>;
