@@ -1,10 +1,17 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import type { ReactNode } from 'react';
-import type { Todo } from '../types';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
+import type { ReactNode } from "react";
+import type { Todo } from "../types";
 
 interface TodoContextValue {
   todos: Todo[];
   addTodo: (text: string) => void;
+  toggleTodo: (id: string) => void;
 }
 
 const TodoContext = createContext<TodoContextValue | undefined>(undefined);
@@ -19,23 +26,30 @@ export function TodoProvider({ children }: { children: ReactNode }) {
       id: crypto.randomUUID(),
       text: trimmed,
       completed: false,
-    }
-    setTodos(prev => [...prev, newTodo]);
+    };
+    setTodos((prev) => [...prev, newTodo]);
   }, []);
 
-  const value = useMemo(() => ({ todos, addTodo }), [todos, addTodo]);
+  const toggleTodo = useCallback((id: string) => {
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
+      ),
+    );
+  }, []);
 
-  return (
-    <TodoContext.Provider value={value}>
-      {children}
-    </TodoContext.Provider>
-  )
+  const value = useMemo(
+    () => ({ todos, addTodo, toggleTodo }),
+    [todos, addTodo, toggleTodo],
+  );
+
+  return <TodoContext.Provider value={value}>{children}</TodoContext.Provider>;
 }
 
 export function useTodos(): TodoContextValue {
   const ctx = useContext(TodoContext);
   if (!ctx) {
-    throw new Error('useTodos must be used within a TodoProvider');
+    throw new Error("useTodos must be used within a TodoProvider");
   }
   return ctx;
 }
