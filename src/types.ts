@@ -3,7 +3,7 @@ export type Theme = 'light' | 'dark'
 export type Filter = 'all' | 'active' | 'completed';
 
 export interface Todo {
-  id: number;
+  id: string;
   text: string;
   completed: boolean;
 };
