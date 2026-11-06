@@ -13,6 +13,7 @@ interface TodoContextValue {
   addTodo: (text: string) => void;
   toggleTodo: (id: string) => void;
   deleteTodo: (id: string) => void;
+  editTodo: (id: string, newText: string) => void;
 }
 
 const TodoContext = createContext<TodoContextValue | undefined>(undefined);
@@ -35,6 +36,14 @@ export function TodoProvider({ children }: { children: ReactNode }) {
     setTodos((prev) => prev.filter((todo) => todo.id !== id));
   }, []);
 
+  const editTodo = useCallback((id: string, newText: string) => {
+  const trimmed = newText.trim();
+  if (!trimmed) return;
+  setTodos((prev) =>
+    prev.map((todo) => (todo.id === id ? { ...todo, text: trimmed } : todo)),
+  );
+}, []);
+
   const toggleTodo = useCallback((id: string) => {
     setTodos((prev) =>
       prev.map((todo) =>
@@ -44,8 +53,8 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ todos, addTodo, toggleTodo, deleteTodo }),
-    [todos, addTodo, toggleTodo, deleteTodo],
+    () => ({ todos, addTodo, toggleTodo, deleteTodo, editTodo }),
+    [todos, addTodo, toggleTodo, deleteTodo, editTodo],
   );
 
   return <TodoContext.Provider value={value}>{children}</TodoContext.Provider>;
