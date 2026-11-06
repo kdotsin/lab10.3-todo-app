@@ -1,4 +1,5 @@
 import { TodoInput } from "./components/TodoInput";
+import { TodoList } from "./components/TodoList";
 import { useTodos } from "./context/TodoContext";
 
 function App() {
@@ -6,7 +7,7 @@ function App() {
   return (
     <div>
       <TodoInput />
-      <pre>{JSON.stringify(todos, null, 2)}</pre>
+      <TodoList />
     </div>
   );
 }
