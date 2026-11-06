@@ -1,8 +1,17 @@
 import { useTodos } from "../context/TodoContext";
+import { useFilter } from "../context/FilterContext";
 import { TodoItem } from "./TodoItem";
 
 export function TodoList() {
   const { todos, clearCompleted } = useTodos();
+  const { filter } = useFilter();
+
+  const visibleTodos = todos.filter((todo) => {
+    if (filter === "active") return !todo.completed;
+    if (filter === "completed") return todo.completed;
+    return true;
+  });
+
   const hasCompleted = todos.some((todo) => todo.completed);
 
   if (todos.length === 0) {
@@ -11,11 +20,15 @@ export function TodoList() {
 
   return (
     <div className="space-y-3">
-      <ul className="space-y-2">
-        {todos.map((todo) => (
-          <TodoItem key={todo.id} todo={todo} />
-        ))}
-      </ul>
+      {visibleTodos.length === 0 ? (
+        <p>No {filter} todos.</p>
+      ) : (
+        <ul className="space-y-2">
+          {visibleTodos.map((todo) => (
+            <TodoItem key={todo.id} todo={todo} />
+          ))}
+        </ul>
+      )}
       <button
         onClick={clearCompleted}
         disabled={!hasCompleted}
