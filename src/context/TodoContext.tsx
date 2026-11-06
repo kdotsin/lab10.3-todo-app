@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -19,8 +20,43 @@ interface TodoContextValue {
 
 const TodoContext = createContext<TodoContextValue | undefined>(undefined);
 
+const STORAGE_KEY = "todo-app-todos";
+
+function isTodo(value: unknown): value is Todo {
+  if (typeof value !== "object" || value === null) return false;
+  const t = value as Record<string, unknown>;
+  return (
+    typeof t.id === "string" &&
+    typeof t.text === "string" &&
+    typeof t.completed === "boolean"
+  );
+}
+
+function loadTodos(): Todo[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter(isTodo) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveTodos(todos: Todo[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+  } catch {
+    console.log("oh no");
+  }
+}
+
 export function TodoProvider({ children }: { children: ReactNode }) {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>(loadTodos);
+
+  useEffect(() => {
+    saveTodos(todos);
+  }, [todos]);
 
   const addTodo = useCallback((text: string) => {
     const trimmed = text.trim();
@@ -58,7 +94,14 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ todos, addTodo, toggleTodo, deleteTodo, editTodo, clearCompleted }),
+    () => ({
+      todos,
+      addTodo,
+      toggleTodo,
+      deleteTodo,
+      editTodo,
+      clearCompleted,
+    }),
     [todos, addTodo, toggleTodo, deleteTodo, editTodo, clearCompleted],
   );
 
