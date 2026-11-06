@@ -2,11 +2,15 @@ import { useState } from "react";
 import type { KeyboardEvent } from "react";
 import type { Todo } from "../types";
 import { useTodos } from "../context/TodoContext";
+import { useTheme } from "../context/ThemeContext";
+import { themeStyles } from "../styles";
 
 export function TodoItem({ todo }: { todo: Todo }) {
   const { toggleTodo, deleteTodo, editTodo } = useTodos();
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(todo.text);
+  const { theme } = useTheme();
+  const s = themeStyles[theme];
 
   const startEditing = () => {
     setDraft(todo.text);
@@ -26,14 +30,14 @@ export function TodoItem({ todo }: { todo: Todo }) {
   };
 
   return (
-    <li className="flex items-center justify-between gap-2 rounded border px-3 py-2">
+    <li className={`flex items-center justify-between gap-2 rounded border px-3 py-2 ${s.card}`}>
       {isEditing ? (
         <input
           autoFocus
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="flex-1 rounded border px-2 py-1"
+          className={`flex-1 rounded border px-2 py-1 ${s.input}`}
         />
       ) : (
         <label className="flex items-center gap-2">
